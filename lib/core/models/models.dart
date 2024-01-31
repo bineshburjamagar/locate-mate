@@ -1,1 +1,2 @@
-export './polygon_models.dart';
+export 'polygon_model.dart';
+export './mate_model.dart';

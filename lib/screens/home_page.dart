@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:locate_mate/core/models/models.dart';
+
+import '../core/widgets/widgets.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -57,6 +60,31 @@ class HomePage extends ConsumerWidget {
               ),
             ],
           ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: 60.0,
+                  child: ListView.separated(
+                    padding: const EdgeInsets.only(left: 20.0),
+                    scrollDirection: Axis.horizontal,
+                    separatorBuilder: (context, index) {
+                      return const SizedBox(width: 10.0);
+                    },
+                    itemBuilder: (context, index) {
+                      return MateListWidget(
+                        mateModel: mateList[index],
+                      );
+                    },
+                    itemCount: mateList.length,
+                  ),
+                ),
+                const MateDetailCard(),
+              ],
+            ),
+          )
         ],
       ),
     );
