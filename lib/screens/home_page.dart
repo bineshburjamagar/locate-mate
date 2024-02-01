@@ -13,8 +13,9 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: FlutterMap(
-        options: const MapOptions(
-          initialCenter: LatLng(
+        options: MapOptions(
+          onTap: (tapPosition, point) {},
+          initialCenter: const LatLng(
             27.6981287,
             85.3438704,
           ),
@@ -23,7 +24,7 @@ class HomePage extends ConsumerWidget {
         ),
         children: [
           TileLayer(
-            urlTemplate: 'https://tile.openstreetmap.de/{z}/{x}/{y}.png',
+            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
             userAgentPackageName: 'com.example.locate_mate',
           ),
           const MarkerLayer(
