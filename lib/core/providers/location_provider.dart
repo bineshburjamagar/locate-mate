@@ -1,18 +1,27 @@
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 
 final getLocationProvider =
     StateNotifierProvider<LocationProviderNotifier, LatLng?>((ref) {
-  return LocationProviderNotifier();
+  return LocationProviderNotifier(ref: ref);
+});
+
+final currentLocationProvider = StateProvider<List<LatLng>>((ref) {
+  return [];
 });
 
 class LocationProviderNotifier extends StateNotifier<LatLng?> {
-  LocationProviderNotifier() : super(null);
+  LocationProviderNotifier({required this.ref}) : super(null) {
+    locationPermission();
+    locationStream();
+  }
+
+  final Ref ref;
+
+  Location location = Location();
 
   locationPermission() async {
-    Location location = Location();
-
     bool serviceEnabled;
     PermissionStatus permissionGranted;
     LocationData locationData;
@@ -36,5 +45,19 @@ class LocationProviderNotifier extends StateNotifier<LatLng?> {
     locationData = await location.getLocation();
 
     state = LatLng(locationData.latitude ?? 0.0, locationData.longitude ?? 0.0);
+  }
+
+  locationStream() {
+    location.onLocationChanged.listen((event) {
+      List<LatLng> latLang = ref.read(currentLocationProvider);
+      if (event.latitude != null && event.longitude != null) {
+        LatLng location = LatLng(event.latitude!, event.longitude!);
+        state = location;
+        latLang.add(location);
+      }
+      ref
+          .read(currentLocationProvider.notifier)
+          .update((state) => state = latLang);
+    });
   }
 }

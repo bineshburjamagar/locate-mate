@@ -1,28 +1,16 @@
 class PolygonModel {
-  final List<GeocodedWaypoint> geocodedWaypoints;
   final List<Route> routes;
   final String status;
 
   PolygonModel({
-    required this.geocodedWaypoints,
     required this.routes,
     required this.status,
   });
 
   factory PolygonModel.fromJson(Map<String, dynamic> json) => PolygonModel(
-        geocodedWaypoints: List<GeocodedWaypoint>.from(
-            json["geocoded_waypoints"]
-                .map((x) => GeocodedWaypoint.fromJson(x))),
         routes: List<Route>.from(json["routes"].map((x) => Route.fromJson(x))),
         status: json["status"],
       );
-
-  Map<String, dynamic> toJson() => {
-        "geocoded_waypoints":
-            List<dynamic>.from(geocodedWaypoints.map((x) => x.toJson())),
-        "routes": List<dynamic>.from(routes.map((x) => x.toJson())),
-        "status": status,
-      };
 }
 
 class GeocodedWaypoint {
@@ -78,16 +66,6 @@ class Route {
         warnings: List<dynamic>.from(json["warnings"].map((x) => x)),
         waypointOrder: List<dynamic>.from(json["waypoint_order"].map((x) => x)),
       );
-
-  Map<String, dynamic> toJson() => {
-        "bounds": bounds.toJson(),
-        "copyrights": copyrights,
-        "legs": List<dynamic>.from(legs.map((x) => x.toJson())),
-        "overview_polyline": overviewPolyline.toJson(),
-        "summary": summary,
-        "warnings": List<dynamic>.from(warnings.map((x) => x)),
-        "waypoint_order": List<dynamic>.from(waypointOrder.map((x) => x)),
-      };
 }
 
 class Bounds {
@@ -160,24 +138,13 @@ class Leg {
         endLocation: Northeast.fromJson(json["end_location"]),
         startAddress: json["start_address"],
         startLocation: Northeast.fromJson(json["start_location"]),
-        steps: List<Step>.from(json["steps"].map((x) => Step.fromJson(x))),
+        steps: List<Step>.from(json["steps"] != null
+            ? json["steps"].map((x) => Step.fromJson(x))
+            : []),
         trafficSpeedEntry:
             List<dynamic>.from(json["traffic_speed_entry"].map((x) => x)),
         viaWaypoint: List<dynamic>.from(json["via_waypoint"].map((x) => x)),
       );
-
-  Map<String, dynamic> toJson() => {
-        "distance": distance.toJson(),
-        "duration": duration.toJson(),
-        "end_address": endAddress,
-        "end_location": endLocation.toJson(),
-        "start_address": startAddress,
-        "start_location": startLocation.toJson(),
-        "steps": List<dynamic>.from(steps.map((x) => x.toJson())),
-        "traffic_speed_entry":
-            List<dynamic>.from(trafficSpeedEntry.map((x) => x)),
-        "via_waypoint": List<dynamic>.from(viaWaypoint.map((x) => x)),
-      };
 }
 
 class Distance {
@@ -201,14 +168,14 @@ class Distance {
 }
 
 class Step {
-  final Distance distance;
-  final Distance duration;
-  final Northeast endLocation;
-  final String htmlInstructions;
-  final Polyline polyline;
-  final Northeast startLocation;
-  final String travelMode;
-  final String maneuver;
+  final Distance? distance;
+  final Distance? duration;
+  final Northeast? endLocation;
+  final String? htmlInstructions;
+  final Polyline? polyline;
+  final Northeast? startLocation;
+  final String? travelMode;
+  final String? maneuver;
 
   Step({
     required this.distance,
@@ -231,17 +198,6 @@ class Step {
         travelMode: json["travel_mode"],
         maneuver: json["maneuver"],
       );
-
-  Map<String, dynamic> toJson() => {
-        "distance": distance.toJson(),
-        "duration": duration.toJson(),
-        "end_location": endLocation.toJson(),
-        "html_instructions": htmlInstructions,
-        "polyline": polyline.toJson(),
-        "start_location": startLocation.toJson(),
-        "travel_mode": travelMode,
-        "maneuver": maneuver,
-      };
 }
 
 class Polyline {

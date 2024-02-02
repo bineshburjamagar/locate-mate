@@ -14,7 +14,7 @@ class MateListWidget extends ConsumerWidget {
     final selectedData = ref.watch(selectedMateProvider);
     return InkWell(
       onTap: () => ref.read(selectedMateProvider.notifier).update(
-            (state) => mateModel,
+            (state) => state = mateModel,
           ),
       child: Container(
         decoration: BoxDecoration(

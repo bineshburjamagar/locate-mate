@@ -1,12 +1,19 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:locate_mate/core/apis/apis.dart';
 import 'package:locate_mate/core/models/models.dart';
 
+import '../providers/providers.dart';
+
 final selectedMateProvider = StateProvider<MateModel>((ref) {
   return mateList.first;
+});
+final polygonsProvider = StateProvider<List<LatLng>>((ref) {
+  return [];
 });
 
 class MateDetailCard extends ConsumerWidget {
@@ -17,6 +24,8 @@ class MateDetailCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedData = ref.watch(selectedMateProvider);
+    final location = ref.watch(getLocationProvider);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(
@@ -69,9 +78,24 @@ class MateDetailCard extends ConsumerWidget {
               ),
             ),
             onPressed: () async {
-              var data = await ref.read(getPolygonsProvider(
-                params: {},
-              ).future);
+              Map<String, dynamic> params = {
+                "origin": "${location?.latitude},${location?.longitude}",
+                "destination": "${selectedData.lat},${selectedData.lang}",
+                "key": dotenv.get('GOOGLEMAPKEY'),
+              };
+              var data =
+                  await ref.read(getPolygonsProvider(params: params).future);
+
+              var gg = data.routes.first.legs.first.steps
+                  .map(
+                    (e) => LatLng(
+                      e.endLocation!.lat,
+                      e.endLocation!.lng,
+                    ),
+                  )
+                  .toList();
+              ref.read(polygonsProvider.notifier).update((state) => state = gg);
+              log(gg.toString());
               log(data.toString());
             },
             child: const Text(
