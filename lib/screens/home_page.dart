@@ -17,12 +17,14 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
+  BitmapDescriptor markerIcon = BitmapDescriptor.defaultMarker;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     checkLocation();
+    addCustomIcon();
   }
 
   checkLocation() async {
@@ -39,6 +41,19 @@ class _HomePageState extends ConsumerState<HomePage> {
         strokeColor: Colors.red));
 
     return polygons.isEmpty ? polygonSet : {};
+  }
+
+  void addCustomIcon() {
+    BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(size: Size(34, 34)),
+      "assets/images/pin.png",
+    ).then(
+      (icon) {
+        setState(() {
+          markerIcon = icon;
+        });
+      },
+    );
   }
 
   @override
@@ -69,15 +84,18 @@ class _HomePageState extends ConsumerState<HomePage> {
                       markerId: const MarkerId("marker1"),
                       position: location,
                       draggable: true,
+                      icon: markerIcon,
                       onDragEnd: (value) {},
                     ),
                     Marker(
                       markerId: const MarkerId("marker2"),
                       position: LatLng(mateLocation.lat, mateLocation.lang),
                       draggable: true,
+                      icon: markerIcon,
                       onDragEnd: (value) {},
                     ),
                   },
+                  polygons: const {},
                 )
               : const Center(
                   child: CircularProgressIndicator(),
