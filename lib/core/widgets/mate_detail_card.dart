@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -14,6 +12,9 @@ final selectedMateProvider = StateProvider<MateModel>((ref) {
 });
 final polygonsProvider = StateProvider<List<LatLng>>((ref) {
   return [];
+});
+final initialLocationProvider = StateProvider<LatLng?>((ref) {
+  return;
 });
 
 class MateDetailCard extends ConsumerWidget {
@@ -89,14 +90,15 @@ class MateDetailCard extends ConsumerWidget {
               var gg = data.routes.first.legs.first.steps
                   .map(
                     (e) => LatLng(
-                      e.endLocation!.lat,
-                      e.endLocation!.lng,
+                      e.startLocation!.lat,
+                      e.startLocation!.lng,
                     ),
                   )
                   .toList();
+              ref
+                  .read(initialLocationProvider.notifier)
+                  .update((state) => state = location);
               ref.read(polygonsProvider.notifier).update((state) => state = gg);
-              log(gg.toString());
-              log(data.toString());
             },
             child: const Text(
               'Directions',

@@ -19,28 +19,19 @@ class _HomePageState extends ConsumerState<HomePage> {
       Completer<GoogleMapController>();
   BitmapDescriptor markerIcon = BitmapDescriptor.defaultMarker;
 
+  BitmapDescriptor pigMarkerIcon = BitmapDescriptor.defaultMarker;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     checkLocation();
     addCustomIcon();
+    addPigCustomIcon();
   }
 
   checkLocation() async {
     ref.read(getLocationProvider);
-  }
-
-  Set<Polygon> myPolygon() {
-    final polygons = ref.watch(polygonsProvider);
-
-    Set<Polygon> polygonSet = {};
-    polygonSet.add(Polygon(
-        polygonId: const PolygonId('test'),
-        points: polygons,
-        strokeColor: Colors.red));
-
-    return polygons.isEmpty ? polygonSet : {};
   }
 
   void addCustomIcon() {
@@ -56,16 +47,36 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
+  void addPigCustomIcon() {
+    BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(size: Size(34, 34)),
+      "assets/images/pig.png",
+    ).then(
+      (icon) {
+        setState(() {
+          pigMarkerIcon = icon;
+        });
+      },
+    );
+  }
+
+  moveCamera({required LatLng latLng}) {
+    _controller.future
+        .then((value) => value.animateCamera(CameraUpdate.newLatLng(latLng)));
+  }
+
   @override
   Widget build(BuildContext context) {
     final location = ref.watch(getLocationProvider);
     final mateLocation = ref.watch(selectedMateProvider);
+    final polygons = ref.watch(polygonsProvider);
+    final initialLocation = ref.watch(initialLocationProvider);
 
-    // ref.listen(getLocationProvider, (pre, next) {
-    //   if (next != null) {
-    //     mapController.move(next, 18.0);
-    //   }
-    // });
+    ref.listen(getLocationProvider, (pre, next) {
+      if (next != null) {
+        moveCamera(latLng: next);
+      }
+    });
 
     return Scaffold(
       body: Stack(
@@ -82,20 +93,36 @@ class _HomePageState extends ConsumerState<HomePage> {
                   markers: {
                     Marker(
                       markerId: const MarkerId("marker1"),
-                      position: location,
-                      draggable: true,
+                      position: initialLocation ?? location,
                       icon: markerIcon,
                       onDragEnd: (value) {},
                     ),
                     Marker(
                       markerId: const MarkerId("marker2"),
                       position: LatLng(mateLocation.lat, mateLocation.lang),
-                      draggable: true,
                       icon: markerIcon,
                       onDragEnd: (value) {},
                     ),
+                    Marker(
+                      markerId: const MarkerId("marker3"),
+                      position: location,
+                      icon: pigMarkerIcon,
+                      onDragEnd: (value) {},
+                    ),
                   },
-                  polygons: const {},
+                  polylines: {
+                    if (polygons.isNotEmpty)
+                      ...List.generate(
+                        polygons.length,
+                        (index) => Polyline(
+                          polylineId: PolylineId(index.toString()),
+                          points: polygons,
+                          zIndex: index,
+                          color: Colors.deepPurple,
+                          width: 4,
+                        ),
+                      )
+                  },
                 )
               : const Center(
                   child: CircularProgressIndicator(),
